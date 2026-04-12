@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// TODO:可以试试心跳机制
 type Coordinator struct {
 	// Your definitions here.
 	//TODO:这里把status放到task里怎么样

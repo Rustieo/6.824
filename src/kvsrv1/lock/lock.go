@@ -37,14 +37,20 @@ func (lk *Lock) Acquire() {
 			temp_err := lk.ck.Put(lk.name, lk.id, version)
 			if temp_err == rpc.OK {
 				return
-			}
+			} //NOTE:这里不检查errmaybe也可以,因为如果真加锁成功了,重试之后就返回ok
 		}
 	}
 }
 
 func (lk *Lock) Release() {
 	result, version, err := lk.ck.Get(lk.name)
+	for err == rpc.ErrMaybe {
+		result, version, err = lk.ck.Get(lk.name)
+	}
 	if err != rpc.ErrNoKey && result != "" && result == lk.id {
-		lk.ck.Put(lk.name, "", version)
+		err = lk.ck.Put(lk.name, "", version)
+		for err == rpc.ErrMaybe {
+			err = lk.ck.Put(lk.name, "", version)
+		}
 	}
 }
